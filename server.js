@@ -8,6 +8,7 @@ const DATA_DIR = process.env.STUDYFLOW_DATA_DIR || path.join(ROOT, 'data');
 const DB_FILE = path.join(DATA_DIR, 'studyflow.json');
 const PORT = Number(process.env.PORT) || 4173;
 const COOKIE = 'studyflow_session';
+const DEFAULT_PREFERENCES = { dailyMinutes: 120, weeklyGoalHours: 10, sessionMinutes: 50, breakMinutes: 10, preferredTime: 'Flexible', studyDays: [0,1,2,3,4,5,6], reminderLeadMinutes: 15, remindersEnabled: false };
 let database = { users: [], planners: {}, sessions: [] };
 let writeQueue = Promise.resolve();
 let firebaseSigningKeys = { expiresAt: 0, keys: {} };
@@ -83,13 +84,14 @@ function getSession(req) {
   const user = database.users.find(item => item.id === userId);
   return user ? { token, user } : null;
 }
-function publicUser(user) { return { id: user.id, name: user.name, email: user.email }; }
+function publicUser(user) { return { id: user.id, name: user.name, email: user.email, year: user.year || '', program: user.program || '', branch: user.branch || '' }; }
 function plannerFor(userId) {
-  if (!database.planners[userId]) database.planners[userId] = { subjects: [], tasks: [], preferences: { dailyMinutes: 120, remindersEnabled: false } };
+  if (!database.planners[userId]) database.planners[userId] = { subjects: [], tasks: [], preferences: { ...DEFAULT_PREFERENCES } };
   const planner = database.planners[userId];
   if (!Array.isArray(planner.subjects)) planner.subjects = [];
   if (!Array.isArray(planner.tasks)) planner.tasks = [];
-  if (!planner.preferences) planner.preferences = { dailyMinutes: 120, remindersEnabled: false };
+  planner.preferences = { ...DEFAULT_PREFERENCES, ...(planner.preferences || {}) };
+  if (!Array.isArray(planner.preferences.studyDays)) planner.preferences.studyDays = [...DEFAULT_PREFERENCES.studyDays];
   return planner;
 }
 function readBody(req) {
@@ -165,16 +167,25 @@ async function handleApi(req, res, url) {
     const session = getSession(req); return json(res, 200, { user: session ? publicUser(session.user) : null });
   }
   const user = await requireUser(req, res); if (!user) return;
+  if (pathname === '/api/profile' && req.method === 'PUT') {
+    const body = await readBody(req), name = cleanText(body.name, 60), year = cleanText(body.year, 30), program = cleanText(body.program, 40), branch = cleanText(body.branch, 60);
+    const validYears = ['', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5', 'Year 6', 'Final year', 'Graduated', 'Other'];
+    const validPrograms = ['', 'B.Tech', 'B.E.', 'M.Tech', 'M.E.', 'B.Sc.', 'M.Sc.', 'BCA', 'MCA', 'B.Com.', 'M.Com.', 'B.A.', 'M.A.', 'BBA', 'MBA', 'B.Des', 'M.Des', 'B.Arch', 'M.Arch', 'B.Pharm', 'M.Pharm', 'MBBS', 'MD', 'BDS', 'LLB', 'LLM', 'B.Ed', 'M.Ed', 'Diploma', 'PhD', 'Other'];
+    if (name.length < 2 || !validYears.includes(year) || !validPrograms.includes(program) || branch.length > 60) return json(res, 400, { error: 'Enter a valid name, year, program, and branch.' });
+    Object.assign(user, { name, year, program, branch }); await persist();
+    return json(res, 200, { user: publicUser(user) });
+  }
   const planner = plannerFor(user.id);
   if (pathname === '/api/planner' && req.method === 'GET') return json(res, 200, { ...planner, user: publicUser(user) });
   if (pathname === '/api/coach/plan' && req.method === 'POST') {
     const body = await readBody(req), question = cleanText(body.question, 500), key = process.env.GEMINI_API_KEY;
     if (!key) return json(res, 503, { error: 'Add your Gemini free-tier key to the local .env file as GEMINI_API_KEY, then restart the server.' });
     const tasks = planner.tasks.filter(task => task.status !== 'completed').map(({ subject, topic, kind, dueDate, duration, difficulty, importance }) => ({ subject, topic, kind, dueDate: dueDate || 'No deadline', duration, difficulty, importance }));
-    const input = `Make a personalized, realistic study plan based on this student's planner. Prioritize tasks using deadlines, difficulty and importance. Respect the daily study-time limit, split long tasks into sessions across days, include short breaks, and state the first task to begin. Do not invent deadlines. Keep the answer clear and encouraging.\nDaily available minutes: ${planner.preferences.dailyMinutes}\nSubjects: ${JSON.stringify(planner.subjects.map(subject => subject.name))}\nUnfinished tasks: ${JSON.stringify(tasks)}\nStudent's question: ${question || 'Please help me organize my study time.'}`;
+    const days = planner.preferences.studyDays.map(day => ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][day]).join(', ');
+    const input = `Make a personalized, realistic study plan based on this student's planner. Prioritize tasks using deadlines, difficulty and importance. Respect the daily and weekly study goals and available days, split long tasks into sessions, include the chosen break after each focus session, and state the first task to begin. Prefer the student's chosen time of day. Do not invent deadlines. Keep the answer clear and encouraging.\nDaily available minutes: ${planner.preferences.dailyMinutes}\nWeekly study goal: ${planner.preferences.weeklyGoalHours} hours\nFocus session: ${planner.preferences.sessionMinutes} minutes; break: ${planner.preferences.breakMinutes} minutes\nPreferred study time: ${planner.preferences.preferredTime}\nAvailable days: ${days}\nSubjects: ${JSON.stringify(planner.subjects.map(subject => subject.name))}\nUnfinished tasks: ${JSON.stringify(tasks)}\nStudent's question: ${question || 'Please help me organize my study time.'}`;
     let response;
     try {
-      response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent', { method: 'POST', headers: { 'x-goog-api-key': key, 'Content-Type': 'application/json' }, body: JSON.stringify({ systemInstruction: { parts: [{ text: 'You are a supportive study coach. Give specific, practical advice and a simple schedule.' }] }, contents: [{ role: 'user', parts: [{ text: input }] }], generationConfig: { maxOutputTokens: 800, temperature: 0.4 } }), signal: AbortSignal.timeout(30000) });
+      response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', { method: 'POST', headers: { 'x-goog-api-key': key, 'Content-Type': 'application/json' }, body: JSON.stringify({ systemInstruction: { parts: [{ text: 'You are a supportive study coach. Give specific, practical advice and a simple schedule.' }] }, contents: [{ role: 'user', parts: [{ text: input }] }], generationConfig: { maxOutputTokens: 800, temperature: 0.4 } }), signal: AbortSignal.timeout(30000) });
     } catch (error) { console.error('Gemini coach request failed:', error.message); return json(res, 502, { error: 'Could not reach Gemini. Check your connection and try again.' }); }
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
@@ -189,7 +200,17 @@ async function handleApi(req, res, url) {
   }
   if (pathname === '/api/preferences' && req.method === 'PUT') {
     const body = await readBody(req);
-    planner.preferences = { dailyMinutes: boundedNumber(body.dailyMinutes, planner.preferences.dailyMinutes || 120, 15, 720), remindersEnabled: Boolean(body.remindersEnabled) };
+    const allowedDays = [...new Set((Array.isArray(body.studyDays) ? body.studyDays : planner.preferences.studyDays).map(Number).filter(day => Number.isInteger(day) && day >= 0 && day <= 6))];
+    planner.preferences = {
+      dailyMinutes: boundedNumber(body.dailyMinutes, planner.preferences.dailyMinutes, 15, 720),
+      weeklyGoalHours: boundedNumber(body.weeklyGoalHours, planner.preferences.weeklyGoalHours, 1, 60),
+      sessionMinutes: [25,45,50,60,90].includes(Number(body.sessionMinutes)) ? Number(body.sessionMinutes) : planner.preferences.sessionMinutes,
+      breakMinutes: [5,10,15,20].includes(Number(body.breakMinutes)) ? Number(body.breakMinutes) : planner.preferences.breakMinutes,
+      preferredTime: ['Flexible','Morning','Afternoon','Evening','Night'].includes(body.preferredTime) ? body.preferredTime : planner.preferences.preferredTime,
+      studyDays: allowedDays.length ? allowedDays : planner.preferences.studyDays,
+      reminderLeadMinutes: [5,10,15,30,60].includes(Number(body.reminderLeadMinutes)) ? Number(body.reminderLeadMinutes) : planner.preferences.reminderLeadMinutes,
+      remindersEnabled: Boolean(body.remindersEnabled)
+    };
     await persist(); return json(res, 200, { preferences: planner.preferences });
   }
   if (pathname === '/api/subjects' && req.method === 'POST') {
