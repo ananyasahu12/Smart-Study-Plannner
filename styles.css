@@ -245,3 +245,64 @@ html[data-theme="dark"] .focus-card strong{color:#f0c8e6}
 html[data-theme="dark"] .focus-card p{color:#d2bfd0}
 @media(max-width:720px){.month-weekdays,.month-grid{gap:4px}.month-day{min-height:61px;padding:7px 5px;border-radius:9px}.month-day-number{font-size:11px}.month-work-count{font-size:8px}.month-work-list{display:none}.month-toolbar{gap:7px}.month-toolbar>strong{min-width:0;font-size:15px}.calendar-legend{font-size:10px}}
 @media(max-width:430px){.month-day{min-height:48px;padding:6px 3px}.month-weekdays{font-size:8px}.month-work-count{font-size:7px}.calendar-legend small{display:none}}
+
+/* Pink and violet study palette, compact section layouts */
+#study-plan{--section-accent:#8950cb;--section-tint:#f6edff;border-top-color:#a56bdb;background:linear-gradient(160deg,#fcf7ff 0,#fff 52%)}
+.reschedule-panel{--section-accent:#c14c9f;--section-tint:#fff0fa;border-top-color:#d65bb1;background:linear-gradient(160deg,#fff8fd 0,#fff 52%)}
+#study-plan .panel-kicker,.reschedule-panel .panel-kicker{color:#9a54c8}
+#study-plan .month-toolbar>strong{color:#593c73}
+#study-plan .month-nav{border-color:#ead8f4;background:#fcf6ff;color:#8b49bd}
+#study-plan .month-nav:hover,#study-plan .month-today:hover{background:#f4e6fb;border-color:#d9b7ec}
+#study-plan .month-today{border-color:#ead8f4;background:#fff8fd;color:#a44691}
+#study-plan .month-day.is-today:not(.has-work){border-color:#d84fa5;background:#fff1fa;color:#a5357d}
+#study-plan .month-day.has-work{background:linear-gradient(145deg,#74439a,#4b2d69);border-color:#613681;color:#fff;box-shadow:0 5px 13px #633c7d2a}
+#study-plan .month-day.has-work:hover{box-shadow:0 9px 17px #633c7d42}
+#study-plan .month-day.has-work.is-today{outline-color:#e582c5}
+#study-plan .month-work-count{color:#f4c8e8}
+#study-plan .calendar-legend i{background:#633b81}
+#study-plan .calendar-legend{color:#745782}
+#study-plan .calendar-legend small{color:#a28daa}
+.reschedule-panel .reschedule-count{background:#fbe8f5;color:#aa3988}
+.reschedule-panel .reschedule-one{background:#fff5fc;border-color:#eccbe2;color:#a5428b}
+.reschedule-panel .reschedule-one:hover{background:#f9e4f4}
+.reschedule-panel .soft-button{background:linear-gradient(100deg,#fbe7f4,#efe5ff);color:#8745ad;border-color:#ebd5f1}
+html[data-theme="dark"] #study-plan{background:linear-gradient(160deg,#33263f,#25202c 55%);border-top-color:#b17be4}
+html[data-theme="dark"] .reschedule-panel{background:linear-gradient(160deg,#38263a,#25202c 55%);border-top-color:#d46bb3}
+html[data-theme="dark"] #study-plan .month-toolbar>strong{color:#efdcfa}
+html[data-theme="dark"] #study-plan .month-nav,html[data-theme="dark"] #study-plan .month-today{background:#382b41;border-color:#60496b;color:#e9c5f1}
+html[data-theme="dark"] #study-plan .month-nav:hover,html[data-theme="dark"] #study-plan .month-today:hover{background:#493151}
+html[data-theme="dark"] #study-plan .month-day.is-today:not(.has-work){background:#432d43;border-color:#d46bb3;color:#ffd9f0}
+html[data-theme="dark"] #study-plan .month-day.has-work{background:linear-gradient(145deg,#70478f,#4c3269);border-color:#865ca3;color:#fff}
+html[data-theme="dark"] #study-plan .month-work-count{color:#f7d5ef}
+html[data-theme="dark"] #study-plan .calendar-legend{color:#d8bfdc}
+html[data-theme="dark"] .reschedule-panel .reschedule-count{background:#472b42;color:#f0b7df}
+html[data-theme="dark"] .reschedule-panel .reschedule-one{background:#3c2b3b;border-color:#67445f;color:#f0c5e3}
+html[data-theme="dark"] .reschedule-panel .soft-button{background:linear-gradient(100deg,#482b42,#392c4a);color:#ecc4eb;border-color:#63476b}
+.page-wrap[data-current-view="plan"] .content-grid.single-panel>.panel{min-height:0}
+.page-wrap[data-current-view="backlog"] .insights-grid>.reschedule-panel{min-height:0;height:auto}
+.reschedule-panel .reschedule-list{flex:initial;gap:8px;margin:9px 0 14px}
+.reschedule-panel .reschedule-item{padding:12px 8px;gap:14px;border:1px solid #f1dfed;border-radius:12px;background:#fffafd}
+.reschedule-panel .reschedule-item>div{gap:5px}
+.reschedule-panel .reschedule-item strong{font-size:15px;line-height:1.35;color:#57365c}
+.reschedule-panel .reschedule-item span{font-size:12px;line-height:1.4;color:#8d788f}
+.reschedule-panel .reschedule-intro{margin:8px 0 5px;font-size:14px;line-height:1.5;color:#826d87}
+.reschedule-panel .reschedule-one{padding:9px 13px;border-radius:9px;font-size:12px}
+.reschedule-panel .reschedule-all{margin-top:8px;padding:12px 16px;font-size:13px}
+.panel-kicker{font-size:10px;letter-spacing:1.15px}
+.panel-heading h2{font-size:22px;line-height:1.25}
+#my-tasks .task-title{font-size:15px;line-height:1.35}
+#my-tasks .task-subline{font-size:12px;line-height:1.4}
+#my-tasks .task-tab{font-size:13px}
+#my-tasks .priority-badge,#my-tasks .task-due{font-size:11px}
+.month-toolbar>strong{font-size:19px;line-height:1.3}
+.month-weekdays{font-size:12px}
+.month-day{min-height:82px;padding:10px}
+.month-day-number{font-size:15px}
+.month-work-count{font-size:11px}
+.month-work-list{font-size:12px}
+.calendar-legend{font-size:12px}
+.calendar-legend small{font-size:11px}
+html[data-theme="dark"] .reschedule-panel .reschedule-item{background:#302637;border-color:#493849}
+html[data-theme="dark"] .reschedule-panel .reschedule-item strong{color:#ead9ed}
+html[data-theme="dark"] .reschedule-panel .reschedule-item span,html[data-theme="dark"] .reschedule-panel .reschedule-intro{color:#c2aec8}
+@media(max-width:720px){.panel-heading h2{font-size:20px}.month-weekdays{font-size:10px}.month-day{min-height:64px;padding:7px 5px}.month-day-number{font-size:13px}.month-work-count{font-size:9px}.month-work-list{display:none}.reschedule-panel .reschedule-item strong{font-size:14px}.reschedule-panel .reschedule-intro{font-size:13px}}
