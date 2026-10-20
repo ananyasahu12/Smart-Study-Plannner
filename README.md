@@ -24,12 +24,18 @@ The backend uses port `4173` by default. Set the `PORT` environment variable to 
 - Review completed and pending work, overdue counts, study hours, points, and study streaks.
 - Enable browser reminders. Notifications appear while the app is open and the browser has granted notification permission.
 - Switch between pink/violet light and dark themes; the selected theme is remembered on the device.
-- Ask the optional AI study coach to suggest a focused plan. It shares subjects, unfinished task details, deadlines, and daily study time with OpenAI only after the user presses **Create my plan**. It does not send account name or email.
+- Ask the AI study coach to suggest a focused plan using Google Gemini. It sends subjects, unfinished task details, deadlines, daily study time, and the optional question only after the user presses **Create my plan**; it does not send account name or email.
 - Use the interface on desktop, tablet, and mobile layouts.
 
 ## Enable the AI study coach
 
-The coach is optional. Set `OPENAI_API_KEY` in the server environment. You can also set `OPENAI_MODEL` to choose a supported model; the default is `gpt-6-astra`. Keep the key on the server and never put it in `app.js`, `index.html`, or a public repository. Without a key, the rest of the planner continues to work and the coach shows a setup message.
+Create a free-tier API key with [Google AI Studio](https://aistudio.google.com/apikey), then put it in a `.env` file in this folder:
+
+```text
+GEMINI_API_KEY=your-key
+```
+
+Restart `node server.js` after changing the key. The `.env` file is excluded from Git. The app uses Google's `gemini-3.8-flash` model. Keep the key on the server, never in `app.js`, `index.html`, or a public repository. Free-tier quotas apply; quota errors stop the request, with no automatic paid fallback. For a strict no-charge setup, don't link billing to the Google project. Gemini's free tier may use submitted content to improve Google products, so don't send sensitive information.
 
 ## Backend API
 
@@ -44,7 +50,7 @@ This prototype stores data in one JSON file, so use one server instance and pers
 1. Create a private GitHub repository and upload this project folder. Do not upload API keys or private data. The local `data` folder is ignored by Git.
 2. In Render, create a **New → Web Service** and connect that repository. Use the Node runtime, leave the build command empty, and set the start command to `node server.js`.
 3. Add a persistent disk mounted at `/opt/render/project/src/data`. Add the environment variable `STUDYFLOW_DATA_DIR=/opt/render/project/src/data` so planner accounts survive redeploys. Render documents persistent disks for paid services; its default service filesystem is temporary.
-4. Add `NODE_ENV=production`. To enable AI, add `OPENAI_API_KEY` as a secret environment variable (and optionally `OPENAI_MODEL`). Do not commit the key.
+4. Add `NODE_ENV=production` and `GEMINI_API_KEY` as a secret environment variable. Use a key from a free-tier project and don't link billing if you need a strict no-charge setup.
 5. Deploy. Render gives the service a public `https://<service-name>.onrender.com` address that you can share. Anyone with the URL can create an account; each account has separate planner data.
 
 This JSON-file prototype is intended for one service instance. Before broad public use, move the database to managed PostgreSQL and add operational safeguards such as backups and rate limits.

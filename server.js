@@ -11,6 +11,18 @@ const COOKIE = 'studyflow_session';
 let database = { users: [], planners: {}, sessions: [] };
 let writeQueue = Promise.resolve();
 
+async function loadLocalSecrets() {
+  try {
+    const contents = await fs.readFile(path.join(ROOT, '.env'), 'utf8');
+    for (const line of contents.split(/\r?\n/)) {
+      const match = line.match(/^\s*([A-Z][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
+      if (!match || process.env[match[1]]) continue;
+      const value = match[2].replace(/^(['"])(.*)\1$/, '$2');
+      process.env[match[1]] = value;
+    }
+  } catch (error) { if (error.code !== 'ENOENT') throw error; }
+}
+
 async function loadDatabase() {
   await fs.mkdir(DATA_DIR, { recursive: true });
   try { database = JSON.parse(await fs.readFile(DB_FILE, 'utf8')); }
@@ -120,19 +132,23 @@ async function handleApi(req, res, url) {
   const planner = plannerFor(user.id);
   if (pathname === '/api/planner' && req.method === 'GET') return json(res, 200, { ...planner, user: publicUser(user) });
   if (pathname === '/api/coach/plan' && req.method === 'POST') {
-    if (!process.env.OPENAI_API_KEY) return json(res, 503, { error: 'AI Coach is not configured yet. Add OPENAI_API_KEY to the server environment to enable it.' });
-    const body = await readBody(req), question = cleanText(body.question, 500);
-    const tasks = planner.tasks.filter(task => task.status !== 'completed').map(({ subject, topic, kind, dueDate, duration, difficulty, importance }) => ({ subject, topic, kind, dueDate: dueDate || null, duration, difficulty, importance }));
-    const subjects = planner.subjects.map(item => item.name);
-    const input = `Create a practical, encouraging study plan using this student's current subjects and unfinished tasks. Prioritize near deadlines and higher difficulty/importance. Keep it concise, break work into sessions within the daily time budget where possible, include short breaks, and give a clear first step. Do not invent deadlines. If there are no tasks, suggest how to start.\nDaily available minutes: ${planner.preferences.dailyMinutes}\nSubjects: ${JSON.stringify(subjects)}\nUnfinished tasks: ${JSON.stringify(tasks)}\nStudent request: ${question || 'Please organize my next study sessions.'}`;
+    const body = await readBody(req), question = cleanText(body.question, 500), key = process.env.GEMINI_API_KEY;
+    if (!key) return json(res, 503, { error: 'Add your Gemini free-tier key to the local .env file as GEMINI_API_KEY, then restart the server.' });
+    const tasks = planner.tasks.filter(task => task.status !== 'completed').map(({ subject, topic, kind, dueDate, duration, difficulty, importance }) => ({ subject, topic, kind, dueDate: dueDate || 'No deadline', duration, difficulty, importance }));
+    const input = `Make a personalized, realistic study plan based on this student's planner. Prioritize tasks using deadlines, difficulty and importance. Respect the daily study-time limit, split long tasks into sessions across days, include short breaks, and state the first task to begin. Do not invent deadlines. Keep the answer clear and encouraging.\nDaily available minutes: ${planner.preferences.dailyMinutes}\nSubjects: ${JSON.stringify(planner.subjects.map(subject => subject.name))}\nUnfinished tasks: ${JSON.stringify(tasks)}\nStudent's question: ${question || 'Please help me organize my study time.'}`;
     let response;
     try {
-      response = await fetch('https://api.openai.com/v1/responses', { method: 'POST', headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: process.env.OPENAI_MODEL || 'gpt-6-astra', input, max_output_tokens: 800, store: false }), signal: AbortSignal.timeout(30000) });
-    } catch (error) { console.error('AI Coach request failed:', error.message); return json(res, 502, { error: 'AI Coach could not connect. Please try again in a moment.' }); }
+      response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent', { method: 'POST', headers: { 'x-goog-api-key': key, 'Content-Type': 'application/json' }, body: JSON.stringify({ systemInstruction: { parts: [{ text: 'You are a supportive study coach. Give specific, practical advice and a simple schedule.' }] }, contents: [{ role: 'user', parts: [{ text: input }] }], generationConfig: { maxOutputTokens: 800, temperature: 0.4 } }), signal: AbortSignal.timeout(30000) });
+    } catch (error) { console.error('Gemini coach request failed:', error.message); return json(res, 502, { error: 'Could not reach Gemini. Check your connection and try again.' }); }
     const result = await response.json().catch(() => ({}));
-    if (!response.ok) { console.error('AI Coach returned an error:', response.status, result.error?.message || ''); return json(res, 502, { error: 'AI Coach could not create a plan. Check the server API key and try again.' }); }
-    const text = result.output_text || (result.output || []).flatMap(item => item.content || []).filter(item => item.type === 'output_text').map(item => item.text).join('\n');
-    if (!text) return json(res, 502, { error: 'AI Coach returned an empty plan. Please try again.' });
+    if (!response.ok) {
+      console.error(`Gemini coach returned status ${response.status}`);
+      if (response.status === 429) return json(res, 429, { error: 'The Gemini free-tier limit was reached. Wait for the quota to reset before trying again.' });
+      if (response.status === 401 || response.status === 403) return json(res, 502, { error: 'Gemini did not accept this API key. Check the server secret and try again.' });
+      return json(res, 502, { error: 'Gemini could not create a plan. Please try again.' });
+    }
+    const text = (result.candidates || []).flatMap(candidate => candidate.content?.parts || []).map(part => part.text || '').join('\n').trim();
+    if (!text) return json(res, 502, { error: 'The AI provider returned an empty plan. Please try again.' });
     return json(res, 200, { plan: text });
   }
   if (pathname === '/api/preferences' && req.method === 'PUT') {
@@ -219,4 +235,4 @@ const server = http.createServer(async (req,res) => {
     const content = await fs.readFile(file); res.writeHead(200,{ 'Content-Type':MIME[path.extname(file)]||'application/octet-stream','Cache-Control':'no-cache' }); res.end(content);
   } catch(error) { console.error(error); json(res,error.message==='Request body must be valid JSON.'?400:500,{error:error.message||'Server error.'}); }
 });
-loadDatabase().then(()=>server.listen(PORT, '0.0.0.0', ()=>console.log(`StudyFlow running on port ${PORT}`))).catch(error=>{console.error(error);process.exitCode=1;});
+loadLocalSecrets().then(loadDatabase).then(()=>server.listen(PORT, '0.0.0.0', ()=>console.log(`StudyFlow running on port ${PORT}`))).catch(error=>{console.error(error);process.exitCode=1;});
