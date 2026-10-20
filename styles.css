@@ -179,3 +179,69 @@ html[data-theme="dark"] .completion-ring:before{background:#241f2d}html[data-the
 .content-grid.single-panel>.panel,.insights-grid>.reschedule-panel,.page-wrap[data-current-view="performance"]>.performance-panel{min-height:0}
 .coach-modal .privacy-note p{line-height:1.55}.provider-select{margin-bottom:15px}.coach-question-label{margin-top:2px}
 .view-hidden{display:none!important}.content-grid.single-panel{display:block;grid-template-columns:1fr}.content-grid.single-panel>.panel{width:100%;min-height:calc(100vh - 145px)}.insights-grid>.reschedule-panel{width:100%;min-height:calc(100vh - 145px)}.page-wrap[data-current-view="dashboard"]>.performance-panel{margin:0 0 18px}.page-wrap[data-current-view="performance"]>.performance-panel{min-height:calc(100vh - 145px)}.page-wrap[data-current-view="dashboard"]>.welcome-row{margin-bottom:17px}.page-wrap[data-current-view="dashboard"]>.hero-card{margin-bottom:0}.page-wrap[data-current-view="dashboard"]{max-width:1100px}.page-wrap[data-current-view="performance"],.page-wrap[data-current-view="tasks"],.page-wrap[data-current-view="plan"],.page-wrap[data-current-view="backlog"]{max-width:1100px}.page-wrap[data-current-view="tasks"] .task-list{min-height:280px}.page-wrap[data-current-view="plan"] .week-grid{max-width:900px}.nav-link.active .nav-icon{color:#c64b9c}html[data-theme="dark"] .completion-ring:before{background:#241f2d}
+
+/* Focus Force section identities */
+.brand-mark{font-family:Manrope,sans-serif;font-weight:900;background:linear-gradient(145deg,#d94fa5,#7654dd);color:#fff;box-shadow:0 5px 14px #b54f9b38}
+.brand-name{white-space:nowrap}.brand-name span{color:#c64b9c}
+#my-tasks{--section-accent:#c84eaa;--section-tint:#fff1fa;border-top:4px solid #d65bb1;background:linear-gradient(160deg,#fffafd 0,#fff 38%)}
+#study-plan{--section-accent:#4d71d9;--section-tint:#eef4ff;border-top:4px solid #6688eb;background:linear-gradient(160deg,#f7f9ff 0,#fff 38%)}
+#performance-panel{--section-accent:#8254d6;--section-tint:#f4efff;border-top:4px solid #9367e3;background:linear-gradient(160deg,#faf7ff 0,#fff 40%)}
+.reschedule-panel{--section-accent:#d87935;--section-tint:#fff3e8;border-top:4px solid #ee9a55;background:linear-gradient(160deg,#fffaf4 0,#fff 42%)}
+#my-tasks>.panel-heading,#study-plan>.panel-heading,#performance-panel>.panel-heading,.reschedule-panel>.panel-heading{margin:-2px -2px 17px;padding:5px 0 14px;border-bottom:1px solid color-mix(in srgb,var(--section-accent) 15%,transparent)}
+#my-tasks .panel-kicker,#study-plan .panel-kicker,#performance-panel .panel-kicker,.reschedule-panel .panel-kicker{color:var(--section-accent)}
+#my-tasks .task-tab.active{background:#fbe6f5;color:#a53384}
+#my-tasks .task-row{border-left:3px solid #e9a5d5;background:#fffafd}
+#study-plan .plan-summary{background:#eef4ff;border-color:#dae5ff}
+#study-plan .summary-check{background:#4d71d9}
+#study-plan .plan-button{background:#5779df}
+#performance-panel .completion-ring{background:conic-gradient(#925ee0 var(--completion),#eee6fa var(--completion))}
+#performance-panel .subject-progress-track i{background:linear-gradient(90deg,#ad79ed,#7650d2)}
+.reschedule-panel .reschedule-count{background:#ffebd9;color:#bd5c19}
+.reschedule-panel .reschedule-one{background:#fff0e2;border-color:#f4d3b4;color:#b85a20}
+.reschedule-panel .soft-button{background:#fff3e8;color:#b95b21;border-color:#f3d4b7}
+.month-calendar{padding:8px 0 16px}
+.month-toolbar{display:flex;align-items:center;gap:12px;margin:2px 0 15px}
+.month-toolbar>strong{font:800 17px Manrope,sans-serif;color:#34415f;min-width:150px}
+.month-nav{width:35px;height:35px;border:1px solid #dfe6f4;border-radius:11px;background:#fff;color:#4968c5;font-size:24px;line-height:1}
+.month-nav:hover,.month-today:hover{background:#eaf0ff;border-color:#bacaf5}
+.month-today{margin-left:auto;border:1px solid #dfe6f4;border-radius:10px;background:#fff;color:#53699e;font-size:12px;font-weight:700;padding:9px 13px}
+.month-weekdays,.month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.month-weekdays{margin-bottom:7px;text-align:center;color:#8992a9;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.month-weekdays span{padding:7px 2px}
+.month-day{min-width:0;min-height:78px;position:relative;padding:9px 8px;border:1px solid #e7ebf3;border-radius:12px;background:#fff;color:#59647d;transition:transform .15s,box-shadow .15s}
+.month-day-number{font-size:13px;font-weight:800}
+.month-day.outside{border-color:transparent;background:transparent}
+.month-day.is-today:not(.has-work){border:2px solid #5c7ddf;background:#f1f5ff;color:#3556b5}
+.month-day.has-work{background:linear-gradient(145deg,#344a83,#23335f);border-color:#273967;color:#fff;box-shadow:0 5px 13px #29396324}
+.month-day.has-work:hover{transform:translateY(-2px);box-shadow:0 9px 17px #29396338}
+.month-day.has-work.is-today{outline:2px solid #8eaafa;outline-offset:1px}
+.month-work-count{display:block;margin-top:7px;color:#cbd8ff;font-size:9px;font-weight:800;white-space:nowrap}
+.month-work-list{display:block;margin-top:3px;overflow:hidden;color:#fff;font-size:10px;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
+.calendar-legend{display:flex;align-items:center;gap:8px;margin-top:11px;color:#63718f;font-size:11px}
+.calendar-legend i{display:inline-block;width:12px;height:12px;margin-right:5px;border-radius:4px;background:#344a83;vertical-align:-2px}
+.calendar-legend small{margin-left:auto;color:#929ab0;font-size:10px}
+#study-plan .plan-date-row{border-top:1px solid #e8edf7;padding-top:13px}
+.focus-card{border-left:4px solid #d75aaa;background:linear-gradient(120deg,#fff2fa,#f4efff)}
+.focus-card strong{display:block;color:#693e8c;font:800 16px Manrope,sans-serif;line-height:1.45}
+.focus-card p{margin-top:7px;color:#786b8e;line-height:1.6}
+.focus-icon{background:#f5d8ed;color:#b74891;font-size:20px}
+html[data-theme="dark"] #my-tasks{background:linear-gradient(160deg,#302537,#25202c 42%);border-top-color:#d65bb1}
+html[data-theme="dark"] #study-plan{background:linear-gradient(160deg,#202b41,#25202c 42%);border-top-color:#6688eb}
+html[data-theme="dark"] #performance-panel{background:linear-gradient(160deg,#2d2440,#25202c 42%);border-top-color:#9367e3}
+html[data-theme="dark"] .reschedule-panel{background:linear-gradient(160deg,#3b2c23,#25202c 42%);border-top-color:#ee9a55}
+html[data-theme="dark"] #my-tasks .task-row{background:#302637;border-color:#804c79}
+html[data-theme="dark"] #my-tasks .task-tab.active{background:#4a3047;color:#f0b5df}
+html[data-theme="dark"] #study-plan .plan-summary{background:#28324a;border-color:#3b4969}
+html[data-theme="dark"] #study-plan .month-toolbar>strong{color:#e3e8fa}
+html[data-theme="dark"] .month-nav,html[data-theme="dark"] .month-today{background:#2d2a3a;border-color:#494456;color:#c5d2ff}
+html[data-theme="dark"] .month-day{background:#2d2937;border-color:#403b4b;color:#ddd5e8}
+html[data-theme="dark"] .month-day.outside{background:transparent;border-color:transparent}
+html[data-theme="dark"] .month-day.is-today:not(.has-work){background:#303a53;border-color:#7794ef;color:#d6e0ff}
+html[data-theme="dark"] .month-day.has-work{background:linear-gradient(145deg,#4c64a0,#344a83);border-color:#637ab5;color:#fff}
+html[data-theme="dark"] .month-work-count{color:#e0e7ff}
+html[data-theme="dark"] .calendar-legend{color:#c5bdd0}
+html[data-theme="dark"] .focus-card{background:linear-gradient(120deg,#39263a,#302a42);border-color:#b34c96}
+html[data-theme="dark"] .focus-card strong{color:#f0c8e6}
+html[data-theme="dark"] .focus-card p{color:#d2bfd0}
+@media(max-width:720px){.month-weekdays,.month-grid{gap:4px}.month-day{min-height:61px;padding:7px 5px;border-radius:9px}.month-day-number{font-size:11px}.month-work-count{font-size:8px}.month-work-list{display:none}.month-toolbar{gap:7px}.month-toolbar>strong{min-width:0;font-size:15px}.calendar-legend{font-size:10px}}
+@media(max-width:430px){.month-day{min-height:48px;padding:6px 3px}.month-weekdays{font-size:8px}.month-work-count{font-size:7px}.calendar-legend small{display:none}}

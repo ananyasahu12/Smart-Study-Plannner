@@ -235,4 +235,4 @@ const server = http.createServer(async (req,res) => {
     const content = await fs.readFile(file); res.writeHead(200,{ 'Content-Type':MIME[path.extname(file)]||'application/octet-stream','Cache-Control':'no-cache' }); res.end(content);
   } catch(error) { console.error(error); json(res,error.message==='Request body must be valid JSON.'?400:500,{error:error.message||'Server error.'}); }
 });
-loadLocalSecrets().then(loadDatabase).then(()=>server.listen(PORT, '0.0.0.0', ()=>console.log(`StudyFlow running on port ${PORT}`))).catch(error=>{console.error(error);process.exitCode=1;});
+loadLocalSecrets().then(loadDatabase).then(()=>server.listen(PORT, '0.0.0.0', ()=>console.log(`Focus Force running on port ${PORT}`))).catch(error=>{console.error(error);process.exitCode=1;});
