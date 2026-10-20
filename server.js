@@ -75,6 +75,16 @@ function readBody(req) {
   });
 }
 function cleanText(value, limit) { return typeof value === 'string' ? value.trim().slice(0, limit) : ''; }
+function normalizeAuthIdentifier(value) {
+  const input = cleanText(value, 160).trim().toLowerCase();
+  const gmail = /^[a-z0-9][a-z0-9._+-]{4,28}[a-z0-9]@(gmail\.com|googlemail\.com)$/.test(input) && !input.split('@')[0].includes('..');
+  if (gmail) return input;
+  if (!/^\+?[\d\s().-]+$/.test(input)) return '';
+  const digits = input.replace(/\D/g, '');
+  if (input.startsWith('+') && digits.length >= 8 && digits.length <= 15) return `+${digits}`;
+  if (/^[6-9]\d{9}$/.test(digits)) return `+91${digits}`;
+  return '';
+}
 function validDate(value) { return !value || (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`))); }
 function boundedNumber(value, fallback, min, max) { const n = Number(value); return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback; }
 function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
@@ -105,9 +115,9 @@ async function handleApi(req, res, url) {
   const pathname = url.pathname;
   if (pathname === '/api/health' && req.method === 'GET') return json(res, 200, { status: 'ok' });
   if (pathname === '/api/auth/register' && req.method === 'POST') {
-    const body = await readBody(req), name = cleanText(body.name, 60), email = cleanText(body.email, 160).toLowerCase();
-    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || typeof body.password !== 'string' || body.password.length < 8 || body.password.length > 200) return json(res, 400, { error: 'Enter your name, a valid email, and a password with at least 8 characters.' });
-    if (database.users.some(user => user.email === email)) return json(res, 409, { error: 'An account with that email already exists.' });
+    const body = await readBody(req), name = cleanText(body.name, 60), email = normalizeAuthIdentifier(body.identifier ?? body.email);
+    if (name.length < 2 || !email || typeof body.password !== 'string' || body.password.length < 8 || body.password.length > 200) return json(res, 400, { error: 'Enter your name, a Gmail address or valid phone number, and a password with at least 8 characters.' });
+    if (database.users.some(user => user.email === email)) return json(res, 409, { error: 'An account with that Gmail address or phone number already exists.' });
     const credentials = await hashPassword(body.password);
     const user = { id: crypto.randomUUID(), name, email, ...credentials, createdAt: new Date().toISOString() };
     delete user.salt; user.salt = credentials.salt; user.passwordHash = credentials.hash; delete user.hash;
@@ -115,9 +125,10 @@ async function handleApi(req, res, url) {
     return json(res, 201, { user: await sendSession(res, user) });
   }
   if (pathname === '/api/auth/login' && req.method === 'POST') {
-    const body = await readBody(req), email = cleanText(body.email, 160).toLowerCase();
+    const body = await readBody(req), email = normalizeAuthIdentifier(body.identifier ?? body.email);
+    if (!email) return json(res, 400, { error: 'Enter a Gmail address or valid phone number.' });
     const user = database.users.find(item => item.email === email);
-    if (!user || !await verifyPassword(String(body.password || ''), user)) return json(res, 401, { error: 'Email or password is incorrect.' });
+    if (!user || !await verifyPassword(String(body.password || ''), user)) return json(res, 401, { error: 'Gmail or phone number and password do not match.' });
     return json(res, 200, { user: await sendSession(res, user) });
   }
   if (pathname === '/api/auth/logout' && req.method === 'POST') {
@@ -235,4 +246,4 @@ const server = http.createServer(async (req,res) => {
     const content = await fs.readFile(file); res.writeHead(200,{ 'Content-Type':MIME[path.extname(file)]||'application/octet-stream','Cache-Control':'no-cache' }); res.end(content);
   } catch(error) { console.error(error); json(res,error.message==='Request body must be valid JSON.'?400:500,{error:error.message||'Server error.'}); }
 });
-loadLocalSecrets().then(loadDatabase).then(()=>server.listen(PORT, '0.0.0.0', ()=>console.log(`Focus Force running on port ${PORT}`))).catch(error=>{console.error(error);process.exitCode=1;});
+loadLocalSecrets().then(loadDatabase).then(()=>server.listen(PORT, '0.0.0.0', ()=>console.log(`Focus Forge running on port ${PORT}`))).catch(error=>{console.error(error);process.exitCode=1;});

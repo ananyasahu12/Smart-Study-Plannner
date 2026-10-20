@@ -1,6 +1,6 @@
-# Focus Force — Smart Study Planner
+# Focus Forge — Smart Study Planner
 
-Focus Force is a full-stack web app for the Smart Study Planner project. The browser interface talks to a dependency-free Node.js backend. The backend stores accounts and each user's subjects, tasks, preferences, and reminders in `data/studyflow.json`.
+Focus Forge is a full-stack web app for the Smart Study Planner project. The browser interface talks to a dependency-free Node.js backend. The backend stores accounts and each user's subjects, tasks, preferences, and reminders in `data/studyflow.json`.
 
 ## Start the app
 

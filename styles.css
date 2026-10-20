@@ -180,7 +180,7 @@ html[data-theme="dark"] .completion-ring:before{background:#241f2d}html[data-the
 .coach-modal .privacy-note p{line-height:1.55}.provider-select{margin-bottom:15px}.coach-question-label{margin-top:2px}
 .view-hidden{display:none!important}.content-grid.single-panel{display:block;grid-template-columns:1fr}.content-grid.single-panel>.panel{width:100%;min-height:calc(100vh - 145px)}.insights-grid>.reschedule-panel{width:100%;min-height:calc(100vh - 145px)}.page-wrap[data-current-view="dashboard"]>.performance-panel{margin:0 0 18px}.page-wrap[data-current-view="performance"]>.performance-panel{min-height:calc(100vh - 145px)}.page-wrap[data-current-view="dashboard"]>.welcome-row{margin-bottom:17px}.page-wrap[data-current-view="dashboard"]>.hero-card{margin-bottom:0}.page-wrap[data-current-view="dashboard"]{max-width:1100px}.page-wrap[data-current-view="performance"],.page-wrap[data-current-view="tasks"],.page-wrap[data-current-view="plan"],.page-wrap[data-current-view="backlog"]{max-width:1100px}.page-wrap[data-current-view="tasks"] .task-list{min-height:280px}.page-wrap[data-current-view="plan"] .week-grid{max-width:900px}.nav-link.active .nav-icon{color:#c64b9c}html[data-theme="dark"] .completion-ring:before{background:#241f2d}
 
-/* Focus Force section identities */
+/* Focus Forge section identities */
 .brand-mark{font-family:Manrope,sans-serif;font-weight:900;background:linear-gradient(145deg,#d94fa5,#7654dd);color:#fff;box-shadow:0 5px 14px #b54f9b38}
 .brand-name{white-space:nowrap}.brand-name span{color:#c64b9c}
 #my-tasks{--section-accent:#c84eaa;--section-tint:#fff1fa;border-top:4px solid #d65bb1;background:linear-gradient(160deg,#fffafd 0,#fff 38%)}
@@ -306,3 +306,29 @@ html[data-theme="dark"] .reschedule-panel .reschedule-item{background:#302637;bo
 html[data-theme="dark"] .reschedule-panel .reschedule-item strong{color:#ead9ed}
 html[data-theme="dark"] .reschedule-panel .reschedule-item span,html[data-theme="dark"] .reschedule-panel .reschedule-intro{color:#c2aec8}
 @media(max-width:720px){.panel-heading h2{font-size:20px}.month-weekdays{font-size:10px}.month-day{min-height:64px;padding:7px 5px}.month-day-number{font-size:13px}.month-work-count{font-size:9px}.month-work-list{display:none}.reschedule-panel .reschedule-item strong{font-size:14px}.reschedule-panel .reschedule-intro{font-size:13px}}
+
+/* Readable dashboard and progress typography */
+.topbar .breadcrumb{font-size:14px;line-height:1.5;gap:12px}
+.topbar .breadcrumb strong{font-size:14px}
+.sidebar .workspace-label{font-size:11px;letter-spacing:1.45px}
+.welcome-row h1{font-size:34px;line-height:1.2;letter-spacing:-1.1px}
+.welcome-row .eyebrow{font-size:11px;letter-spacing:1.25px}
+.page-subtitle{font-size:15px;line-height:1.55}
+.hero-card .hero-content>p{font-size:15px;line-height:1.55}
+.hero-task-meta{font-size:12px;line-height:1.5}
+.performance-panel .panel-heading h2{font-size:27px;line-height:1.2}
+.performance-panel .panel-kicker{font-size:11px;letter-spacing:1.3px}
+.performance-overview{gap:30px;padding:24px 8px 22px}
+.performance-stats{gap:18px}
+.performance-stats>div{gap:7px}
+.performance-stats strong{font-size:19px;line-height:1.3}
+.performance-stats span{font-size:13px;line-height:1.45}
+.subject-performance-heading{font-size:14px;padding-top:17px;margin-bottom:14px}
+.subject-performance{gap:15px 20px}
+.subject-progress-row>div:first-child{margin-bottom:8px}
+.subject-progress-row span{font-size:14px}
+.subject-progress-row small{font-size:12px}
+.subject-progress-track{height:7px}
+.insight-empty{font-size:13px;padding:12px 2px}
+@media(max-width:760px){.welcome-row h1{font-size:29px}.performance-panel .panel-heading h2{font-size:23px}.performance-overview{gap:18px;padding:19px 2px}.performance-stats{gap:10px}.performance-stats strong{font-size:16px}.performance-stats span{font-size:11px}}
+@media(max-width:430px){.topbar .breadcrumb,.topbar .breadcrumb strong{font-size:12px}.welcome-row h1{font-size:25px}.page-subtitle{font-size:14px}.performance-overview{gap:12px}.performance-stats strong{font-size:14px}.performance-stats span{font-size:10px}}
