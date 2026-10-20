@@ -10,6 +10,32 @@ const PORT = Number(process.env.PORT) || 4173;
 const COOKIE = 'studyflow_session';
 let database = { users: [], planners: {}, sessions: [] };
 let writeQueue = Promise.resolve();
+let firebaseSigningKeys = { expiresAt: 0, keys: {} };
+
+async function verifyFirebaseIdToken(token) {
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  if (!projectId) throw new Error('Google sign-in is not configured yet. Add the Firebase project settings to the server environment.');
+  const pieces = typeof token === 'string' ? token.split('.') : [];
+  if (pieces.length !== 3) throw new Error('Google sign-in returned an invalid credential. Please try again.');
+  let header, claims;
+  try { header = JSON.parse(Buffer.from(pieces[0], 'base64url').toString()); claims = JSON.parse(Buffer.from(pieces[1], 'base64url').toString()); }
+  catch { throw new Error('Google sign-in returned an invalid credential. Please try again.'); }
+  const now = Math.floor(Date.now() / 1000);
+  if (header.alg !== 'RS256' || !header.kid || claims.aud !== projectId || claims.iss !== `https://securetoken.google.com/${projectId}` || !claims.sub || claims.sub.length > 128 || !Number.isFinite(claims.exp) || claims.exp <= now || !Number.isFinite(claims.iat) || claims.iat > now + 60 || !claims.email_verified || claims.firebase?.sign_in_provider !== 'google.com') throw new Error('The Google account could not be verified. Please sign in again with Google.');
+  if (firebaseSigningKeys.expiresAt < Date.now() || !firebaseSigningKeys.keys[header.kid]) {
+    const response = await fetch('https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com', { signal: AbortSignal.timeout(10000) });
+    if (!response.ok) throw new Error('Could not verify Google sign-in right now. Please try again.');
+    const keys = await response.json();
+    const maxAge = Number(response.headers.get('cache-control')?.match(/max-age=(\d+)/)?.[1] || 3600);
+    firebaseSigningKeys = { keys, expiresAt: Date.now() + Math.min(maxAge, 3600) * 1000 };
+  }
+  const certificate = firebaseSigningKeys.keys[header.kid];
+  const valid = certificate && crypto.verify('RSA-SHA256', Buffer.from(`${pieces[0]}.${pieces[1]}`), certificate, Buffer.from(pieces[2], 'base64url'));
+  if (!valid) throw new Error('The Google account could not be verified. Please sign in again with Google.');
+  const email = typeof claims.email === 'string' ? claims.email.trim().toLowerCase() : '';
+  if (!email || !/^[^@\s]+@(gmail\.com|googlemail\.com)$/.test(email)) throw new Error('Please use a verified Gmail account to continue.');
+  return { uid: claims.sub, email, name: cleanText(claims.name, 60) || email.split('@')[0] };
+}
 
 async function loadLocalSecrets() {
   try {
@@ -114,21 +140,20 @@ async function requireUser(req, res) {
 async function handleApi(req, res, url) {
   const pathname = url.pathname;
   if (pathname === '/api/health' && req.method === 'GET') return json(res, 200, { status: 'ok' });
-  if (pathname === '/api/auth/register' && req.method === 'POST') {
-    const body = await readBody(req), name = cleanText(body.name, 60), email = normalizeAuthIdentifier(body.identifier ?? body.email);
-    if (name.length < 2 || !email || typeof body.password !== 'string' || body.password.length < 8 || body.password.length > 200) return json(res, 400, { error: 'Enter your name, a Gmail address or valid phone number, and a password with at least 8 characters.' });
-    if (database.users.some(user => user.email === email)) return json(res, 409, { error: 'An account with that Gmail address or phone number already exists.' });
-    const credentials = await hashPassword(body.password);
-    const user = { id: crypto.randomUUID(), name, email, ...credentials, createdAt: new Date().toISOString() };
-    delete user.salt; user.salt = credentials.salt; user.passwordHash = credentials.hash; delete user.hash;
-    database.users.push(user); plannerFor(user.id); await persist();
-    return json(res, 201, { user: await sendSession(res, user) });
+  if (pathname === '/api/config' && req.method === 'GET') {
+    const config = { apiKey: process.env.FIREBASE_API_KEY || '', authDomain: process.env.FIREBASE_AUTH_DOMAIN || '', projectId: process.env.FIREBASE_PROJECT_ID || '', appId: process.env.FIREBASE_APP_ID || '' };
+    return json(res, 200, { firebase: config, configured: Object.values(config).every(Boolean) });
   }
-  if (pathname === '/api/auth/login' && req.method === 'POST') {
-    const body = await readBody(req), email = normalizeAuthIdentifier(body.identifier ?? body.email);
-    if (!email) return json(res, 400, { error: 'Enter a Gmail address or valid phone number.' });
-    const user = database.users.find(item => item.email === email);
-    if (!user || !await verifyPassword(String(body.password || ''), user)) return json(res, 401, { error: 'Gmail or phone number and password do not match.' });
+  if (pathname === '/api/auth/register' || pathname === '/api/auth/login') return json(res, 410, { error: 'Password sign-in is turned off. Continue with your verified Google account.' });
+  if (pathname === '/api/auth/google' && req.method === 'POST') {
+    let identity;
+    try { const body = await readBody(req); identity = await verifyFirebaseIdToken(body.idToken); }
+    catch (error) { return json(res, error.message.startsWith('Google sign-in is not configured') ? 503 : 401, { error: error.message || 'Google sign-in failed. Please try again.' }); }
+    let user = database.users.find(item => item.firebaseUid === identity.uid);
+    if (!user) user = database.users.find(item => item.email?.toLowerCase() === identity.email);
+    if (user) { user.email = identity.email; user.name = identity.name; user.firebaseUid = identity.uid; delete user.passwordHash; delete user.salt; }
+    else { user = { id: crypto.randomUUID(), name: identity.name, email: identity.email, firebaseUid: identity.uid, createdAt: new Date().toISOString() }; database.users.push(user); }
+    plannerFor(user.id); await persist();
     return json(res, 200, { user: await sendSession(res, user) });
   }
   if (pathname === '/api/auth/logout' && req.method === 'POST') {

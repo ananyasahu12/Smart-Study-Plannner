@@ -35,22 +35,28 @@ Create a free-tier API key with [Google AI Studio](https://aistudio.google.com/a
 GEMINI_API_KEY=your-key
 ```
 
-Restart `node server.js` after changing the key. The `.env` file is excluded from Git. The app uses Google's `gemini-3.8-flash` model. Keep the key on the server, never in `app.js`, `index.html`, or a public repository. Free-tier quotas apply; quota errors stop the request, with no automatic paid fallback. For a strict no-charge setup, don't link billing to the Google project. Gemini's free tier may use submitted content to improve Google products, so don't send sensitive information.
+Restart `node server.js` after changing the key. The `.env` file is excluded from Git. The app uses Google's `gemini-3.8-flash` model. Keep the Gemini key on the server, never in `app.js`, `index.html`, or a public repository. Free-tier quotas apply; quota errors stop the request, with no automatic paid fallback. For a strict no-charge setup, don't link billing to the Google project. Gemini's free tier may use submitted content to improve Google products, so don't send sensitive information.
+
+## Google sign-in (Firebase Authentication)
+
+The planner uses Google sign-in only. Create a Firebase project, add a Web app, enable **Authentication → Sign-in method → Google**, and add your local and deployed hostnames under **Authentication → Settings → Authorized domains**. Copy the Web app's API key, Auth domain, Project ID, and App ID into `.env` using the names in `.env.example`, then restart the server. Google sign-in checks the Firebase ID token on the backend and only accepts verified Gmail identities. The browser config is public Firebase client configuration; never put the Gemini key in it. When deploying, add the four `FIREBASE_*` values to the Render service environment. Existing planner records with the same verified Gmail address are carried forward at first Google sign-in.
+
+If the AI coach says the API route is not found, the site is serving an older backend. Redeploy the latest commit so Render includes `/api/coach/plan`; also make sure `GEMINI_API_KEY` is set in the Render service environment.
 
 ## Backend API
 
-The server serves the frontend and JSON API from the same origin. It exposes account registration, sign-in, sign-out, and session routes under `/api/auth`; per-user planner data at `GET /api/planner`; subject create, rename, and delete routes under `/api/subjects`; task create, edit, status, delete, and individual rescheduling routes under `/api/tasks`; preference updates at `PUT /api/preferences`; backlog rescheduling at `POST /api/planner/rescue`; and the optional AI endpoint at `POST /api/coach/plan`.
+The server serves the frontend and JSON API from the same origin. It exposes verified Google sign-in at `POST /api/auth/google`, sign-out and session routes under `/api/auth`, client configuration at `GET /api/config`, per-user planner data at `GET /api/planner`, subject create, rename, and delete routes under `/api/subjects`, task create, edit, status, delete, and individual rescheduling routes under `/api/tasks`, preference updates at `PUT /api/preferences`, backlog rescheduling at `POST /api/planner/rescue`, and the Gemini study coach at `POST /api/coach/plan`.
 
 ## Current limits
 
-This prototype stores data in one JSON file, so use one server instance and persistent storage when hosting it. A managed database such as PostgreSQL is a better choice before scaling to multiple instances. Reminder notifications require the app to remain open. Password reset, email verification, and external calendar integration are not included in the milestones' first version.
+This prototype stores data in one JSON file, so use one server instance and persistent storage when hosting it. A managed database such as PostgreSQL is a better choice before scaling to multiple instances. Reminder notifications require the app to remain open. Password reset and external calendar integration are not included in the milestones' first version.
 
 ## Share it as a website (Render)
 
 1. Create a private GitHub repository and upload this project folder. Do not upload API keys or private data. The local `data` folder is ignored by Git.
 2. In Render, create a **New → Web Service** and connect that repository. Use the Node runtime, leave the build command empty, and set the start command to `node server.js`.
 3. Add a persistent disk mounted at `/opt/render/project/src/data`. Add the environment variable `STUDYFLOW_DATA_DIR=/opt/render/project/src/data` so planner accounts survive redeploys. Render documents persistent disks for paid services; its default service filesystem is temporary.
-4. Add `NODE_ENV=production` and `GEMINI_API_KEY` as a secret environment variable. Use a key from a free-tier project and don't link billing if you need a strict no-charge setup.
+4. Add `NODE_ENV=production`, `GEMINI_API_KEY`, and the four `FIREBASE_*` settings as environment variables. Use a key from a free-tier Gemini project and don't link billing if you need a strict no-charge AI setup.
 5. Deploy. Render gives the service a public `https://<service-name>.onrender.com` address that you can share. Anyone with the URL can create an account; each account has separate planner data.
 
 This JSON-file prototype is intended for one service instance. Before broad public use, move the database to managed PostgreSQL and add operational safeguards such as backups and rate limits.
