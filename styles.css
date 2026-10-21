@@ -484,7 +484,7 @@ html[data-theme="dark"] .priority-note:after{background-color:#160d2c}
 .priority-note:after{width:40px;height:40px}
 @media(max-width:760px){.priority-note{padding-bottom:40px}.priority-note:before{bottom:19px}.priority-note:after{width:36px;height:36px}}
 .hero-logo-mark{width:58px;height:58px;padding:0;border:1px solid #ffffff7a;border-radius:19px;background:linear-gradient(145deg,#ffffff42,#e3bbff38);box-shadow:0 8px 22px #41115a38;backdrop-filter:blur(7px);transform:none}
-.hero-logo-mark img{mix-blend-mode:screen;filter:drop-shadow(0 2px 4px #3a174c66)}
+.hero-logo-mark img{mix-blend-mode:normal;filter:none}
 @media(max-width:760px){.hero-logo-mark{width:48px;height:48px;padding:0;border-radius:16px}}
 /* Carry the Dashboard hero's pink-violet palette through every light-theme section. */
 html[data-theme="light"] body{background:linear-gradient(112deg,#e8d8f8 0%,#f2e9fb 44%,#f8ddec 100%) fixed}
