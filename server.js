@@ -281,7 +281,7 @@ function normalizeTask(body, planner, existing) {
   return { value: { id: existing?.id || crypto.randomUUID(), subjectId: subjectItem.id, subject: subjectItem.name, topic, kind: ['topic','assignment','exam'].includes(body.kind) ? body.kind : 'topic', dueDate: body.dueDate || '', duration: boundedNumber(body.duration,45,5,600), difficulty: boundedNumber(body.difficulty,3,1,5), importance: boundedNumber(body.importance,3,1,5), reminderAt: reminderAt?.toISOString() || '', status: existing?.status || 'pending', createdAt: existing?.createdAt || new Date().toISOString(), completedAt: existing?.completedAt || null, missedAt: existing?.missedAt || null } };
 }
 function taskScore(task) { const today = new Date(); today.setHours(0,0,0,0); let urgency = 1; if (task.dueDate) { const due = new Date(`${task.dueDate}T00:00:00`); const days = Math.round((due-today)/86400000); urgency = days <= 0 ? 5 : days <= 2 ? 4 : days <= 7 ? 3 : days <= 14 ? 2 : 1; } return urgency*.5 + task.difficulty*.3 + task.importance*.2; }
-const MIME = { '.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml' };
+const MIME = { '.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png' };
 const server = http.createServer(async (req,res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
