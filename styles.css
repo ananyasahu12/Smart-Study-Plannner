@@ -476,7 +476,7 @@ html[data-theme="dark"] .breadcrumb-home:hover strong{color:#efabd9}
 .hero-logo-mark img{position:absolute;width:341%;max-width:none;height:auto;left:-120.5%;top:-26.7%;border-radius:0}
 .priority-note{padding-bottom:28px}
 .priority-note:before{bottom:13px;width:min(260px,55%);height:2px;background:linear-gradient(90deg,#dc4fa4 0%,#aa59ce 39%,transparent 39%,transparent 61%,#aa59ce 61%,#7650d7 100%)}
-.priority-note:after{content:'';bottom:0;width:26px;height:26px;border:2px solid #fff;border-radius:50%;padding:0;background:#160d2c url('/assets/focus-forge-logo.png') 50% 29%/341% auto no-repeat;box-shadow:0 4px 12px #74368f32}
+.priority-note:after{content:'';bottom:0;width:26px;height:26px;border:2px solid #fff;border-radius:50%;padding:0;background:#160d2c url('/focus-forge-logo.png') 50% 29%/341% auto no-repeat;box-shadow:0 4px 12px #74368f32}
 html[data-theme="dark"] .priority-note:after{background-color:#160d2c}
 @media(max-width:760px){.hero-logo-mark{top:13px;right:13px;width:38px;height:38px;padding:2px}}
 .priority-note{padding-bottom:44px}
@@ -494,3 +494,11 @@ html[data-theme="light"] .panel,html[data-theme="light"] .stat-card{background:l
 html[data-theme="light"] .focus-card,html[data-theme="light"] .author-footer{background:linear-gradient(110deg,#f7dcec 0%,#e2d4f8 100%)}
 html[data-theme="light"] .tip-card{background:linear-gradient(120deg,#f0d9ed,#e2d8f8)}
 html[data-theme="light"] .hero-logo-mark{background:linear-gradient(112deg,#7147ce,#9251d4 48%,#cf4eaa);border-color:#ffffffb8}
+.partner-profile-modal .author-profile-content{padding-top:65px}
+.partner-avatar{display:grid;place-items:center;color:#f4d9ee;font:800 39px Manrope,sans-serif;letter-spacing:-2px;background:linear-gradient(145deg,#312349,#151a32)}
+.partner-profile-modal .author-profile-card{border-left-color:#d45aa9}
+.partner-profile-modal .author-card-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#fbe4f2}
+html[data-theme="dark"] .partner-profile-modal .author-card-icon{background:#56344b;color:#f2a5d0}
+
+.initials-avatar{display:grid;place-items:center;color:#f4d9ee;font:800 39px Manrope,sans-serif;letter-spacing:-2px;background:linear-gradient(145deg,#312349,#151a32)}
+
