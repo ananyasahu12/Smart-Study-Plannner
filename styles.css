@@ -505,3 +505,39 @@ html[data-theme="dark"] .partner-profile-modal .author-card-icon{background:#563
 
 .focus-card{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:0;width:100%}.focus-thought{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0;padding:4px 20px}.focus-thought:first-child{padding-left:4px}.focus-thought+.focus-thought{border-left:2px solid #c865aa;padding-left:24px}.focus-thought>div{min-width:0}.focus-card .focus-illustration{position:static;right:auto;bottom:auto;transform:none;font-size:28px;line-height:1;flex:none;opacity:.8}.focus-thought:first-child .focus-illustration{font-size:42px}.focus-thought-secondary strong{max-width:42ch}
 @media(max-width:600px){.focus-card{grid-template-columns:1fr;gap:0}.focus-thought{padding:4px 2px}.focus-thought+.focus-thought{border-left:0;border-top:1px solid rgba(179,76,150,.35);padding:14px 2px 2px;margin-top:12px}}
+
+/* A simpler student-style look, keeping the original planner and pink/violet colors. */
+body { font-family: Arial, sans-serif; background: var(--bg); color: var(--ink); }
+h1,h2,h3 { font-family: Arial, sans-serif; letter-spacing: 0; }
+.topbar { background: var(--white); backdrop-filter: none; }
+.sidebar { background: var(--white); }
+.panel,.stat-card,.hero-card,.focus-card,.tip-card,.plan-summary { box-shadow: none; border: 1px solid var(--line); }
+.hero-card { background: linear-gradient(110deg, #a64e9e, #7654bd); }
+.hero-card::before,.hero-card::after { display: none; }
+.hero-card h2 { color: #fff; }
+.hero-card p,.hero-task-meta { color: #fff; }
+.hero-tag { background: rgba(255,255,255,.16); color: #fff; border-color: rgba(255,255,255,.38); }
+.hero-art,.hero-logo-mark { display: none; }
+.button { box-shadow: none; transition: background-color .15s ease; }
+.stat-card { transition: none; }
+.stat-card:hover { transform: none; box-shadow: none; }
+.completion-ring { box-shadow: none; }
+.panel,.stat-card { border-radius: 10px; }
+.task-row,.day-column,.focus-card { border-radius: 8px; }
+.welcome-row { align-items: center; }
+.panel-heading h2 { font-family: Arial, sans-serif; }
+.auth-card { box-shadow: none; border: 1px solid var(--line); }
+.auth-tagline { font-weight: 500; }
+.hero-button { background: #fff; color: #7441ad; cursor: pointer; }
+.hero-button:disabled { cursor: not-allowed; opacity: .65; }
+html[data-theme="dark"] .hero-card { background: linear-gradient(110deg, #64345e, #483777); }
+html[data-theme="dark"] .hero-card h2,html[data-theme="dark"] .hero-card p,html[data-theme="dark"] .hero-task-meta { color: #fff; }
+.sidebar-close { display: none; }
+@media(max-width:760px) {
+  .sidebar { z-index: 6; }
+  .sidebar-close { display: grid; position: absolute; top: 18px; right: 13px; z-index: 7; width: 32px; height: 32px; border-radius: 8px; color: var(--purple); background: var(--bg); font-size: 22px; }
+  .sidebar .brand { padding-right: 36px; }
+  .mobile-menu { width: 36px; height: 36px; border-radius: 8px; background: #f3eafa; color: #8b3fa6; font-size: 20px; }
+  html[data-theme="dark"] .mobile-menu { background: #382b43; color: #edb7dc; }
+  .sidebar-backdrop:not([hidden]) { inset: 56px 0 0; }
+}
